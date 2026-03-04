@@ -89,7 +89,10 @@ tr.bench-row td{border-bottom:1px solid rgba(255,51,85,0.12)!important}
 
 /* ── TABLE CARD ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:9px}
-.card-lbl{padding:7px 11px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);background:var(--bg3);border-bottom:1px solid var(--border);font-weight:500}
+.card-lbl{padding:7px 11px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);background:var(--bg3);border-bottom:1px solid var(--border);font-weight:500;cursor:pointer;user-select:none;transition:background .15s}
+.card-lbl:hover{background:var(--bg4)}
+.card.collapsed>table,.card.collapsed>div:not(.card-lbl),.card.collapsed>.breadthGrid{display:none}
+.card.collapsed>.card-lbl{border-bottom:none}
 table{width:100%;border-collapse:collapse}
 thead th{padding:6px 10px;text-align:right;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);font-weight:500}
 thead th:first-child,thead th.l{text-align:left}
@@ -355,8 +358,8 @@ td:first-child,td.l{text-align:left}
   </div>
 
   <!-- Country ETFs -->
-  <div class="card">
-    <div class="card-lbl">▸ Country ETFs — Top 10 by 1W Performance (Holdings expandable ▸)</div>
+  <div class="card collapsed">
+    <div class="card-lbl">▾ Country ETFs — Top 10 by 1W Performance (Holdings expandable ▸)</div>
     <table><thead><tr><th class="l">#</th><th class="l">Country / ETF</th><th>Price</th><th>1D%</th><th>1W%</th><th>52W Hi%</th><th>YTD%</th><th>5D</th><th>Trend</th><th class="l">Holdings</th></tr></thead>
     <tbody id="t-country"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody></table>
   </div>
@@ -401,9 +404,9 @@ td:first-child,td.l{text-align:left}
         <button class="dir-b short" id="bShort" onclick="setDir('short')">▼ SHORT</button>
       </div>
       <div class="fg"><label class="fl">Account Equity (USD)</label>
-        <input class="fi" type="number" id="cEquity" value="10000000" oninput="calc()"></div>
+        <input class="fi" type="number" id="cEquity" value="30000" oninput="calc()"></div>
       <div class="fg"><label class="fl">Risk per Trade (%)</label>
-        <input class="fi" type="number" id="cRisk" value="0.3" step="0.05" oninput="calc()"></div>
+        <input class="fi" type="number" id="cRisk" value="0.1" step="0.05" oninput="calc()"></div>
       <div class="fr">
         <div class="fg"><label class="fl">Entry Price ($)</label>
           <input class="fi" type="number" id="cEntry" value="100" oninput="calc()"></div>
@@ -413,11 +416,11 @@ td:first-child,td.l{text-align:left}
       <div class="fg"><label class="fl">Ticker (optional)</label>
         <input class="fi" type="text" id="cTicker" placeholder="e.g. AAPL" style="text-transform:uppercase"></div>
       <div class="res">
-        <div class="res-big" id="rShares">6,000</div>
+        <div class="res-big" id="rShares">18</div>
         <div class="res-lbl">SHARES TO TRADE</div>
         <div class="res-sub">
-          <div class="ri"><div class="rv" id="rRisk" style="color:var(--red)">$30,000</div><div class="rl">Max Risk $</div></div>
-          <div class="ri"><div class="rv" id="rVal">$600,000</div><div class="rl">Position Value</div></div>
+          <div class="ri"><div class="rv" id="rRisk" style="color:var(--red)">$90</div><div class="rl">Max Risk $</div></div>
+          <div class="ri"><div class="rv" id="rVal">$1,800</div><div class="rl">Position Value</div></div>
           <div class="ri"><div class="rv" id="rPts" style="color:var(--amber)">$5.00</div><div class="rl">Risk/Share</div></div>
           <div class="ri"><div class="rv" id="rEq" style="color:var(--text2)">6.0%</div><div class="rl">% Equity</div></div>
         </div>
@@ -466,6 +469,22 @@ td:first-child,td.l{text-align:left}
 
 
 <script>
+// ═══════════════════════════════════════════════════════
+// COLLAPSIBLE CARD HEADERS
+// ═══════════════════════════════════════════════════════
+document.addEventListener('click', function(e) {
+  var lbl = e.target.closest('.card-lbl');
+  if (!lbl) return;
+  var card = lbl.closest('.card');
+  if (!card) return;
+  card.classList.toggle('collapsed');
+  if (card.classList.contains('collapsed')) {
+    lbl.textContent = lbl.textContent.replace('\u25b8', '\u25be');
+  } else {
+    lbl.textContent = lbl.textContent.replace('\u25be', '\u25b8');
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // DATA DEFINITIONS
 // ═══════════════════════════════════════════════════════
