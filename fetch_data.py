@@ -637,54 +637,27 @@ def fetch_all(prices_only=False):
         ('thematic',  THEMATIC),
         ('country',   COUNTRY),
     ]
-    # Non-US / crypto: use Massive when available (real-time), else yfinance
-    massive_batches = [
-        ('crypto',    CRYPTO_YF),
-        ('global',    GLOBAL_IDX),  # global indices via Massive Indices API (I: prefix)
-        ('dxvix',     ['^VIX']),    # VIX via Massive Indices API
-    ]
-    # Always yfinance: futures, metals, energy, DXY
+    # Always yfinance: all price data (Massive has T+1 delay across all asset classes)
+    # Massive is kept only for the treasury yield curve (Economy API).
     yf_batches = [
+        ('crypto',    CRYPTO_YF),
+        ('global',    GLOBAL_IDX),
+        ('dxvix',     ['^VIX', 'DX-Y.NYB']),
         ('futures',   FUTURES),
         ('metals',    METALS),
         ('commod',    ENERGY),
-        ('dxvix',     ['DX-Y.NYB']),  # DXY stays on yfinance (no Massive equivalent)
     ]
 
     use_massive = bool(MASSIVE_API_KEY) and not prices_only
     if prices_only:
-        print(f"Prices-only mode — using yfinance to avoid Massive API rate limits")
+        print(f"Prices-only mode — using yfinance")
     elif use_massive:
-        print(f"✓ MASSIVE_API_KEY found — using Massive API for global indices & crypto")
+        print(f"✓ MASSIVE_API_KEY found — using Massive API for treasury yields only")
     else:
-        print(f"⚠ MASSIVE_API_KEY not set — falling back to yfinance for all tickers")
+        print(f"⚠ MASSIVE_API_KEY not set — all data via yfinance")
 
-    # Fetch US ETFs via yfinance (always — Massive is T+1 delayed for US equities)
-    for key, tickers in yf_etf_batches:
-        print(f"Fetching {key} ({len(tickers)} tickers) via yfinance...")
-        raw = fetch_batch(tickers)
-        for yf_sym in tickers:
-            rec = raw.get(yf_sym)
-            if rec:
-                output[key].append(rec)
-            else:
-                print(f"  \u26a0 No data for {yf_sym}")
-        time.sleep(1)
-
-    # Fetch global indices & crypto via Massive (if available), else yfinance
-    for key, tickers in massive_batches:
-        print(f"Fetching {key} ({len(tickers)} tickers) via {'Massive' if use_massive else 'yfinance'}...")
-        raw = fetch_batch_massive(tickers) if use_massive else fetch_batch(tickers)
-        for yf_sym in tickers:
-            rec = raw.get(yf_sym)
-            if rec:
-                output[key].append(rec)
-            else:
-                print(f"  \u26a0 No data for {yf_sym}")
-        if not use_massive:
-            time.sleep(1)
-
-    for key, tickers in yf_batches:
+    # Fetch all price sections via yfinance (always — Massive has T+1 delay)
+    for key, tickers in yf_etf_batches + yf_batches:
         print(f"Fetching {key} ({len(tickers)} tickers) via yfinance...")
         raw = fetch_batch(tickers)
         for yf_sym in tickers:
@@ -729,7 +702,7 @@ def fetch_all(prices_only=False):
         for key in massive_sections:
             if not output.get(key) and existing.get(key):
                 output[key] = existing[key]
-                print(f"  \u26a0 {key}: Massive API returned no data \u2014 preserving existing values")
+                print(f"  \u26a0 {key}: no data returned \u2014 preserving existing values")
         # dxvix: restore VIX from existing if it's missing from this run
         vix_in_output = any(r.get('sym') == 'CBOE:VIX' for r in output.get('dxvix', []))
         if not vix_in_output and existing.get('dxvix'):
@@ -737,7 +710,7 @@ def fetch_all(prices_only=False):
             if vix_rec:
                 output['dxvix'].append(vix_rec)
                 output['dxvix'].sort(key=lambda x: {'DX-Y.NYB': 0, 'CBOE:VIX': 1}.get(x.get('sym', ''), 99))
-                print(f"  \u26a0 dxvix/VIX: Massive API returned no data \u2014 preserving existing value")
+                print(f"  \u26a0 dxvix/VIX: no data returned \u2014 preserving existing value")
 
     if not prices_only:
         holdings_tickers = list(dict.fromkeys(
