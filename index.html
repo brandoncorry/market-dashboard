@@ -12,7 +12,7 @@
   --bg:      #07090d;
   --bg2:     #0c0f15;
   --bg3:     #111520;
-  --bg4:     #161b26;h
+  --bg4:     #161b26;
   --border:  #1c2535;
   --border2: #243044;
   --accent:  #00c8ff;
@@ -225,7 +225,7 @@ td:first-child,td.l{text-align:left}
       <div id="hdr-date" style="letter-spacing:1px">—</div>
       <strong id="hdr-time">—</strong>
     </div>
-    <div class="live"><span class="dot"></span>HKT LIVE</div>
+    <div class="live"><span class="dot"></span>EST LIVE</div>
   </div>
   <div class="hdr-r">
     <span id="lastUpdatedBadge" style="font-size:9px;color:var(--text3);letter-spacing:1px;padding:4px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:2px">LOADING DATA...</span>
@@ -244,7 +244,7 @@ td:first-child,td.l{text-align:left}
 <div class="api-bar" id="dataStatusBar">
   ⬤ &nbsp;
   <span id="dataStatus" style="color:var(--text2)">Loading market data...</span>
-  <span id="dataAge" style="color:var(--text3);font-size:9px;margin-left:auto">Auto-refreshed daily 06:00 HKT via GitHub Actions · Yahoo Finance</span>
+  <span id="dataAge" style="color:var(--text3);font-size:9px;margin-left:auto">Auto-refreshed daily 02:00 EST via GitHub Actions · Yahoo Finance</span>
 </div>
 
 <!-- ══════════════════════════════════════════════════════ -->
@@ -784,13 +784,13 @@ let DIR = 'long', STOPS = 2;
 // ═══════════════════════════════════════════════════════
 function tick() {
   const now = new Date();
-  const hkt = new Date(now.toLocaleString('en-US',{timeZone:'Asia/Hong_Kong'}));
+  const est = new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
   const D=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  document.getElementById('hdr-date').textContent=`${D[hkt.getDay()]} · ${hkt.getDate()} ${M[hkt.getMonth()]} ${hkt.getFullYear()}`;
-  const h=String(hkt.getHours()).padStart(2,'0');
-  const m=String(hkt.getMinutes()).padStart(2,'0');
-  const s=String(hkt.getSeconds()).padStart(2,'0');
+  document.getElementById('hdr-date').textContent=`${D[est.getDay()]} · ${est.getDate()} ${M[est.getMonth()]} ${est.getFullYear()}`;
+  const h=String(est.getHours()).padStart(2,'0');
+  const m=String(est.getMinutes()).padStart(2,'0');
+  const s=String(est.getSeconds()).padStart(2,'0');
   document.getElementById('hdr-time').textContent=`${h}:${m}:${s}`;
 }
 setInterval(tick,1000); tick();
@@ -985,9 +985,9 @@ function renderAll(d) {
   // Update freshness badge
   if(d.generated_at){
     const dt=new Date(d.generated_at);
-    const hkt=new Date(dt.toLocaleString('en-US',{timeZone:'Asia/Hong_Kong'}));
+    const est=new Date(dt.toLocaleString('en-US',{timeZone:'America/New_York'}));
     const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const label=`DATA: ${hkt.getDate()} ${M[hkt.getMonth()]} ${hkt.getFullYear()} · ${String(hkt.getHours()).padStart(2,'0')}:${String(hkt.getMinutes()).padStart(2,'0')} HKT`;
+    const label=`DATA: ${est.getDate()} ${M[est.getMonth()]} ${est.getFullYear()} · ${String(est.getHours()).padStart(2,'0')}:${String(est.getMinutes()).padStart(2,'0')} EST`;
     document.getElementById('lastUpdatedBadge').textContent=label;
     document.getElementById('lastUpdatedBadge').style.color='var(--green)';
     document.getElementById('dataStatus').textContent='✓ Market data loaded — EOD prices';
