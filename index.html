@@ -1014,7 +1014,7 @@ function renderAll(d) {
 
     // How stale?
     const ageHrs=Math.round((Date.now()-dt.getTime())/3600000);
-    document.getElementById('dataAge').textContent=`Updated ${ageHrs}h ago · Refreshes daily at 06:00 HKT`;
+    document.getElementById('dataAge').textContent=`Updated ${ageHrs}h ago · Refreshes hourly.`;
   }
 }
 
